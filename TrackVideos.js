@@ -53,7 +53,6 @@ async function getvideoPublicationDate(page){
     await page.waitForXPath('/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[2]/span[2]');
     let [info] = await page.$x('/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[2]/span[2]');
     const PublicationDate = await page.evaluate(name => name.innerText, info);
-    console.log(PublicationDate);
     var actualDate=PublicationDate;
     if (PublicationDate.indexOf("d")>-1){
         var days = parseInt(PublicationDate.replace( /^\D+/g, ''));
@@ -66,7 +65,6 @@ async function getvideoPublicationDate(page){
         actualDate = actualDate.toISOString().replace('T', ' ').substring(0, 10);
     }
     else if(!(PublicationDate.indexOf("202")>-1)){
-        console.log(typeof PublicationDate);
         var currentYear = (new Date().getFullYear()).toString();
         actualDate=currentYear+"-"+PublicationDate;
     }

@@ -14,7 +14,6 @@ function readData(file)
       })
       .pipe(parse({delimiter: ',',from_line: 2}))
       .on('data', (row) => {
-        //console.log(data);;
         urls.push(row[0]);
       })
       .on('end', () => {
