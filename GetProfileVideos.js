@@ -4,7 +4,8 @@ puppeteer.use(StealthPlugin());
 
 (async () => {
     const browser = await puppeteer.launch({
-        headless: false
+        headless: true,
+        args: ['--disable-dev-shm-usage']
     });
     const page = await browser.newPage();
     await page.goto('https://www.tiktok.com/@anitta');
@@ -12,6 +13,15 @@ puppeteer.use(StealthPlugin());
         width: 1200,
         height: 800
     });
+    await page.setRequestInterception(true);
+    page.on('request', (req) => {
+        if(req.resourceType() === 'image'){
+        req.abort();
+        }
+        else {
+        req.continue();
+        }
+        });
 
     await autoScroll(page);
 
