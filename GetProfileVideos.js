@@ -7,7 +7,7 @@ puppeteer.use(StealthPlugin());
         headless: false
     });
     const page = await browser.newPage();
-    await page.goto('https://www.tiktok.com/@gabrielreisgr');
+    await page.goto('https://www.tiktok.com/@anitta');
     await page.setViewport({
         width: 1200,
         height: 800
