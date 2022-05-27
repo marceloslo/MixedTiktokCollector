@@ -1,77 +1,8 @@
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-var fs = require('fs');
+var fs = require('fs'); 
 const readline = require('readline');
-puppeteer.use(StealthPlugin());
+const puppeteer = require('puppeteer')
 
-async function getLinks(url){
-	console.log('Collecting links from ' + url)
-	
-    const browser = await puppeteer.launch({
-        headless: false,
-        args: ['--disable-dev-shm-usage']
-    });
-    const page = await browser.newPage();
-	await page.setRequestInterception(true);
-    page.on('request', (req) => {
-        if(req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image'){
-        req.abort();
-        }
-        else {
-        req.continue();
-        }
-    });	
-    
-    await page.setViewport({
-        width: 1200,
-        height: 800
-    });
-	await page.goto(url);
-
-    await autoScroll(page);
-
-    //get all links
-	const hrefs = await page.$$eval('a', as => as.map(a => a.href));
-	
-	function starts(item){
-		return item.startsWith(url);
-	}	
-	const results = hrefs.filter(starts);
-	
-	console.log('Saving links from ' + url)
-	
-	for (var result of results){
-		var dict = {};
-		dict['Url'] = result;
-		var content = JSON.stringify(dict);
-		fs.appendFile('Data/VideosTemp.json',content+'\n',function (err) {
-			if (err) throw err;
-		});
-	}
-	await browser.close();
-    
-}
-
-async function autoScroll(page){
-    await page.evaluate(async () => {
-        await new Promise((resolve, reject) => {
-            var totalHeight = 0;
-            var distance = 100;
-            var timer = setInterval(() => {
-                var scrollHeight = document.body.scrollHeight;
-                window.scrollBy(0, distance);
-                totalHeight += distance;
-
-                if(totalHeight >= scrollHeight - window.innerHeight){
-                    clearInterval(timer);
-                    resolve();
-                }
-            }, 100);
-        });
-    });
-}
-
-
+//reads the usermetadata json and stores its urls
 async function readJson(file){
   const fileStream = fs.createReadStream(file);
 
@@ -89,11 +20,135 @@ async function readJson(file){
   return dataframe;
 }
 
-async function run(){
-	urls = await readJson('Data/UserMetadata.json');
-	for (var url of urls){
-		await getLinks(url);
-	}
+//gets data of xp(X-Path) of a given page
+async function getMetadata(page,xp){
+  await page.waitForXPath(xp);
+  let [info] = await page.$x(xp);
+  const result = await page.evaluate(name => name.innerText, info);
+  return result;
 }
 
-run();
+async function getvideoLikeCount(page){
+  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[3]/button[1]/strong');
+  return res;
+}
+async function getvideoCommentCount(page){
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[3]/button[2]/strong');
+    return res;
+  }
+  async function getvideoSharesCount(page){
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[3]/button[3]/strong');
+    return res;
+  }
+async function getprofileId(page){
+  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[2]/div/a[2]/span[1]');
+  return res;
+}
+async function getvideoDescription(page){
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]/div');
+    return res;
+  }
+
+async function getContent(page){
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]/div');
+    return res;
+  }
+
+async function getvideoPublicationDate(page){
+    await page.waitForXPath('/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[2]/div/a[2]/span[2]/span[2]');
+    let [info] = await page.$x('/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[2]/div/a[2]/span[2]/span[2]');
+    const PublicationDate = await page.evaluate(name => name.innerText, info);
+    var actualDate=PublicationDate;
+    if (PublicationDate.indexOf("d")>-1){
+        var days = parseInt(PublicationDate.replace( /^\D+/g, ''));
+        actualDate = new Date(new Date().getTime() - (days * 24 * 60 * 60 * 1000))
+        actualDate = actualDate.toISOString().replace('T', ' ').substring(0, 10);
+    }
+    else if(PublicationDate.indexOf("w")>-1){
+        var weeks = parseInt(PublicationDate.replace( /^\D+/g, ''));
+        actualDate = new Date(new Date().getTime() - (weeks * 7 * 24 * 60 * 60 * 1000))
+        actualDate = actualDate.toISOString().replace('T', ' ').substring(0, 10);
+    }
+    else if(!(PublicationDate.indexOf("202")>-1)){
+        var currentYear = (new Date().getFullYear()).toString();
+        actualDate=currentYear+"-"+PublicationDate;
+    }
+    return actualDate;
+  }
+
+//gets date in format YYYY-MM-DD
+async function getCollectionDate(){
+  return new Date().toISOString().replace('T', ' ').substring(0, 10);
+}
+
+//checks if video exists(True or False)
+async function videoExists(page){
+  try{
+    //this xpath corresponds to removed video
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div/p[1]');
+    return 0;
+  }
+  catch(err){
+    return 1;
+  }
+}
+
+//gets metadata in json format
+async function getAndFormat(url,page){
+  var exists = videoExists(page);
+  if(exists){
+    var stats = {};
+    stats["Url"]=url;
+    stats["UserId"]=await getprofileId(page);
+    stats["Description"] = await getvideoDescription(page);
+    stats["LikeCount"] = await getvideoLikeCount(page);
+    stats['SharesCount'] = await getvideoSharesCount(page);
+    stats['CommentCount'] = await getvideoCommentCount(page);
+    stats['PublicationDate'] = await getvideoPublicationDate(page);
+    stats["CollectionDate"] = await getCollectionDate();
+    stats["Status"]= 1;
+    return stats;
+  }
+  else{
+    var stats = {"Url":self.url,"UserId":"","Description":"","LikeCount":"","CommentCount":"","SharesCount":"","PublicationDate":"","Status":0}
+    stats["CollectionDate"] = await getCollectionDate();
+    return stats;
+  }
+}
+
+//Add all videos' metadata in the csv file to the json file
+async function trackVideos(){
+  const browser = await puppeteer.launch({ headless: false,args: [
+    '--window-size=1920,1080']});
+    
+  const page = await browser.newPage();
+  page.setDefaultNavigationTimeout(10000000); 
+  await page.setViewport({
+      width: 1920,
+      height: 1080
+  });
+
+  const urls = await readJson('Data/VideosTemp.json');
+  
+  results=[];
+  for(var url of urls)
+  {
+    console.log(url);
+    await page.goto(url+'?is_copy_url=1&is_from_webapp=v1');
+    try{var result = await getAndFormat(url,page);
+    }catch(error){
+      console.log(error);
+    };
+    results.push(result);
+  }
+  for(var result of results)
+  {
+    var content = JSON.stringify(result);
+    fs.appendFile('Data/VideoLogging.json',content+'\n',function (err) {
+      if (err) throw err;
+    });
+  }
+  await browser.close()
+}
+
+trackVideos();
