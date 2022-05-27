@@ -1,37 +1,56 @@
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+var fs = require('fs');
+const readline = require('readline');
 puppeteer.use(StealthPlugin());
 
-(async () => {
+async function getLinks(url){
+	console.log('Collecting links from ' + url)
+	
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: ['--disable-dev-shm-usage']
     });
     const page = await browser.newPage();
-    await page.goto('https://www.tiktok.com/@anitta');
-    await page.setViewport({
-        width: 1200,
-        height: 800
-    });
-    await page.setRequestInterception(true);
+	await page.setRequestInterception(true);
     page.on('request', (req) => {
-        if(req.resourceType() === 'image'){
+        if(req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image'){
         req.abort();
         }
         else {
         req.continue();
         }
-        });
+    });	
+    
+    await page.setViewport({
+        width: 1200,
+        height: 800
+    });
+	await page.goto(url);
 
     await autoScroll(page);
 
-    await page.screenshot({
-        path: 'yoursite.png',
-        fullPage: true
-    });
-
-    await browser.close();
-})();
+    //get all links
+	const hrefs = await page.$$eval('a', as => as.map(a => a.href));
+	
+	function starts(item){
+		return item.startsWith(url);
+	}	
+	const results = hrefs.filter(starts);
+	
+	console.log('Saving links from ' + url)
+	
+	for (var result of results){
+		var dict = {};
+		dict['Url'] = result;
+		var content = JSON.stringify(dict);
+		fs.appendFile('Data/VideosTemp.json',content+'\n',function (err) {
+			if (err) throw err;
+		});
+	}
+	await browser.close();
+    
+}
 
 async function autoScroll(page){
     await page.evaluate(async () => {
@@ -51,3 +70,30 @@ async function autoScroll(page){
         });
     });
 }
+
+
+async function readJson(file){
+  const fileStream = fs.createReadStream(file);
+
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+  // Note: we use the crlfDelay option to recognize all instances of CR LF
+  // ('\r\n') in input.txt as a single line break.
+  var dataframe = [];
+  for await (const line of rl) {
+    var obj=JSON.parse(line);
+    dataframe.push(obj['Url']);
+  }
+  return dataframe;
+}
+
+async function run(){
+	urls = await readJson('Data/UserMetadata.json');
+	for (var url of urls){
+		await getLinks(url);
+	}
+}
+
+run();
