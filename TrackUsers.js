@@ -118,7 +118,7 @@ async function getAndFormat(url,page){
 
 //Add all videos' metadata in the csv file to the json file
 async function trackVideos(){
-  const browser = await puppeteer.launch({ headless: false,args: [
+  const browser = await puppeteer.launch({ headless: true,args: [
     '--window-size=1920,1080']});
   const page = await browser.newPage();
   await page.setRequestInterception(true);
