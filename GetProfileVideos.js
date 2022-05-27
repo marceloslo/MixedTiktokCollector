@@ -8,7 +8,7 @@ async function getLinks(url){
 	console.log('Collecting links from ' + url)
 
     const browser = await puppeteer.launch({
-        headless: true,
+        headless: false,
         args: ['--disable-dev-shm-usage']
     });
     const page = await browser.newPage();
@@ -54,7 +54,17 @@ async function getLinks(url){
 
 async function autoScroll(page){
     await page.evaluate(async () => {
-	@@ -50,4 +69,31 @@ async function autoScroll(page){
+        await new Promise((resolve, reject) => {
+            var totalHeight = 0;
+            var distance = 100;
+            var timer = setInterval(() => {
+                var scrollHeight = document.body.scrollHeight;
+                window.scrollBy(0, distance);
+                totalHeight += distance;
+                if(totalHeight >= scrollHeight - window.innerHeight){
+                    clearInterval(timer);
+                    resolve();
+                }
             }, 100);
         });
     });
