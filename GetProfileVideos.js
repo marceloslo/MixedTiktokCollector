@@ -8,7 +8,7 @@ async function getLinks(url){
 	console.log('Collecting links from ' + url)
 
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         args: ['--disable-dev-shm-usage']
     });
     const page = await browser.newPage();
