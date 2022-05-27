@@ -48,6 +48,10 @@ async function getvideoDescription(page){
     const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[2]/div/span');
     return res;
   }
+async function getContent(page){
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[1]/div/div[1]/div/video');
+    return res;
+}   
 
 async function getvideoPublicationDate(page){
     await page.waitForXPath('/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[2]/span[2]');
@@ -95,6 +99,7 @@ async function getAndFormat(url,page){
     var stats = {};
     stats["Url"]=url;
     stats["UserId"]=await getprofileId(page);
+    stats['Content'] = await getContent(page);
     stats["Description"] = await getvideoDescription(page);
     stats["LikeCount"] = await getvideoLikeCount(page);
     stats['SharesCount'] = await getvideoSharesCount(page);
@@ -105,7 +110,7 @@ async function getAndFormat(url,page){
     return stats;
   }
   else{
-    var stats = {"Url":self.url,"UserId":"","Description":"","LikeCount":"","CommentCount":"","SharesCount":"","PublicationDate":"","Status":0}
+    var stats = {"Url":self.url,"UserId":"","Content":"","Description":"","LikeCount":"","CommentCount":"","SharesCount":"","PublicationDate":"","Status":0}
     stats["CollectionDate"] = await getCollectionDate();
     return stats;
   }
@@ -113,11 +118,9 @@ async function getAndFormat(url,page){
 
 //Add all videos' metadata in the csv file to the json file
 async function trackVideos(){
-  const browser = await puppeteer.launch({ headless: true,args: [
+  const browser = await puppeteer.launch({ headless: false,args: [
     '--window-size=1920,1080']});
-    
   const page = await browser.newPage();
-
   await page.setRequestInterception(true);
   page.on('request', request => {
     if (request.isNavigationRequest() && request.redirectChain().length !== 0) {
@@ -127,36 +130,19 @@ async function trackVideos(){
     }
     });
 
-  await page.setViewport({
-      width: 1200,
-      height: 800
-  });
-
   const urls = await readJson('Data/VideosTemp.json');
-  var valid = false;
-  var results =[]
-  while(valid)
+  results=[];
+  for(var url of urls)
   {
-    valid=true;
-    results=[];
-    for(var url of urls)
-    {
-      //console.log(url);
-      await page.goto(url);
-      try{
-        var result = await getAndFormat(url,page);
-      }catch(err){
-        valid=false;
-        console.log(url)
-        break;
-      }
-      results.push(result);
-    }
+    console.log(url);
+    await page.goto(url);
+    var result = await getAndFormat(url,page);
+    results.push(result);
   }
   for(var result of results)
   {
     var content = JSON.stringify(result);
-    fs.appendFile('Data/VideoLogging.json',content+'\n',function (err) {
+    fs.appendFile('Data/VideoMetadata.json',content+'\n',function (err) {
       if (err) throw err;
     });
   }
