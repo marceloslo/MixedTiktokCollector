@@ -1,11 +1,8 @@
 var fs = require('fs'); 
 const readline = require('readline');
 const puppeteer = require('puppeteer')
-
-//reads the usermetadata json and stores its urls
 async function readJson(file){
   const fileStream = fs.createReadStream(file);
-
   const rl = readline.createInterface({
     input: fileStream,
     crlfDelay: Infinity
@@ -19,118 +16,83 @@ async function readJson(file){
   }
   return dataframe;
 }
-
-//gets data of xp(X-Path) of a given page
 async function getMetadata(page,xp){
   await page.waitForXPath(xp);
   let [info] = await page.$x(xp);
   const result = await page.evaluate(name => name.innerText, info);
   return result;
 }
-
-async function getvideoLikeCount(page){
-  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[3]/button[1]/strong');
+async function getProfileName(page){
+  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/div[1]/div/h1');
   return res;
 }
-async function getvideoCommentCount(page){
-    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[3]/button[2]/strong');
-    return res;
-  }
-  async function getvideoSharesCount(page){
-    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[3]/button[3]/strong');
-    return res;
-  }
-async function getprofileId(page){
-  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[1]');
+async function getProfileBio(page){
+  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/h2[2]');
   return res;
 }
-async function getvideoDescription(page){
-    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[2]/div/span');
-    return res;
-  }
-async function getContent(page){
-    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[1]/div/div[1]/div/video');
-    return res;
-}   
-
-async function getvideoPublicationDate(page){
-    await page.waitForXPath('/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[2]/span[2]');
-    let [info] = await page.$x('/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[2]/span[2]');
-    const PublicationDate = await page.evaluate(name => name.innerText, info);
-    var actualDate=PublicationDate;
-    if (PublicationDate.indexOf("d")>-1){
-        var days = parseInt(PublicationDate.replace( /^\D+/g, ''));
-        actualDate = new Date(new Date().getTime() - (days * 24 * 60 * 60 * 1000))
-        actualDate = actualDate.toISOString().replace('T', ' ').substring(0, 10);
-    }
-    else if(PublicationDate.indexOf("w")>-1){
-        var weeks = parseInt(PublicationDate.replace( /^\D+/g, ''));
-        actualDate = new Date(new Date().getTime() - (weeks * 7 * 24 * 60 * 60 * 1000))
-        actualDate = actualDate.toISOString().replace('T', ' ').substring(0, 10);
-    }
-    else if(!(PublicationDate.indexOf("202")>-1)){
-        var currentYear = (new Date().getFullYear()).toString();
-        actualDate=currentYear+"-"+PublicationDate;
-    }
-    return actualDate;
-  }
-
-//gets date in format YYYY-MM-DD
+async function getProfileFollowers(page){
+  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/h2[1]/div[2]/strong');
+  return res;
+}
+async function getProfileLikeCount(page){
+  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/h2[1]/div[3]/strong');
+  return res;
+}
+async function getProfileFollowing(page){
+  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/h2[1]/div[1]/strong');
+  return res;
+}
+async function getProfileId(page){
+  const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/div[1]/div/h2');
+  return res;
+}
 async function getCollectionDate(){
   return new Date().toISOString().replace('T', ' ').substring(0, 10);
 }
-
-//checks if video exists(True or False)
-async function videoExists(page){
+async function ProfileExists(page){
   try{
-    //this xpath corresponds to removed video
-    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div[1]/div/p[1]');
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/main/div/p[1]');
     return 0;
   }
   catch(err){
     return 1;
   }
 }
-
-//gets metadata in json format
 async function getAndFormat(url,page){
-  var exists = videoExists(page);
+  var exists = ProfileExists(page);
   if(exists){
     var stats = {};
     stats["Url"]=url;
-    stats["UserId"]=await getprofileId(page);
-    stats['Content'] = await getContent(page);
-    stats["Description"] = await getvideoDescription(page);
-    stats["LikeCount"] = await getvideoLikeCount(page);
-    stats['SharesCount'] = await getvideoSharesCount(page);
-    stats['CommentCount'] = await getvideoCommentCount(page);
-    stats['PublicationDate'] = await getvideoPublicationDate(page);
+    stats['User']= await getProfileName(page);
+    stats["UserId"]=await getProfileId(page);
+    stats["Description"] = await getProfileBio(page);
+    stats["LikeCount"] = await getProfileLikeCount(page);
+    stats["Followers"] = await getProfileFollowers(page);
+    stats["Following"] = await getProfileFollowing(page);
     stats["CollectionDate"] = await getCollectionDate();
     stats["Status"]= 1;
     return stats;
+
+    
+          
+            
+    
+
+          
+    
+    
+  
   }
   else{
-    var stats = {"Url":self.url,"UserId":"","Content":"","Description":"","LikeCount":"","CommentCount":"","SharesCount":"","PublicationDate":"","Status":0}
+    var stats = {"Url":url,'User':"","UserId":"","ProfileBio":"","Followers":"","Following":"","LikeCount":"","Status":0}
     stats["CollectionDate"] = await getCollectionDate();
     return stats;
   }
 }
-
-//Add all videos' metadata in the csv file to the json file
-async function trackVideos(){
-  const browser = await puppeteer.launch({ headless: true,args: [
-    '--window-size=1920,1080']});
+async function TrackUsers(){
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.setRequestInterception(true);
-  page.on('request', request => {
-    if (request.isNavigationRequest() && request.redirectChain().length !== 0) {
-        request.abort();
-    } else {
-        request.continue();
-    }
-    });
-
-  const urls = await readJson('Data/VideosTemp.json');
+  const urls = await readJson('Data/UserMetadata.json');
   results=[];
   for(var url of urls)
   {
@@ -139,14 +101,14 @@ async function trackVideos(){
     var result = await getAndFormat(url,page);
     results.push(result);
   }
+  console.log("saving new results\n");
   for(var result of results)
   {
     var content = JSON.stringify(result);
-    fs.appendFile('Data/VideoMetadata.json',content+'\n',function (err) {
+    fs.appendFile('Data/UserLogging.json',content+'\n',function (err) {
       if (err) throw err;
     });
   }
   await browser.close()
 }
-
-trackVideos();
+TrackUsers(); 
