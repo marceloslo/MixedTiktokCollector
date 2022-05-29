@@ -110,6 +110,8 @@ async function getAndFormat(url,page){
     stats["UserId"]=await getProfileId(page);
     stats["Description"] = await getProfileBio(page);
     stats["LikeCount"] = await getProfileLikeCount(page);
+    stats["Followers"] = await getProfileFollowers(page);
+    stats["Following"] = await getProfileFollowing(page);
     stats["CollectionDate"] = await getCollectionDate();
     stats["Status"]= 1;
     return stats;

@@ -72,16 +72,6 @@ async function getAndFormat(url,page){
     stats["CollectionDate"] = await getCollectionDate();
     stats["Status"]= 1;
     return stats;
-
-    
-          
-            
-    
-
-          
-    
-    
-  
   }
   else{
     var stats = {"Url":url,'User':"","UserId":"","ProfileBio":"","Followers":"","Following":"","LikeCount":"","Status":0}
