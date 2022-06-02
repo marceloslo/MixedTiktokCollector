@@ -24,7 +24,8 @@ newData=[]
 today = datetime.now().strftime("%Y-%m-%d")
 for url in newVideos['Url']:
     print('Collecting '+url)
-    data=api.getStatisticsFromUrl(url)
+    api.setUrl(url)
+    data=api.getMetadata()
     newData.append(data)
 driver.quit()
 print("Saving")
@@ -32,4 +33,4 @@ with open("Data/VideoMetadata.json","a") as file:
     for line in newData:
         write_document_to_file(line,file)
 
-os.remove("Data/VideosTemp.json")
+#os.remove("Data/VideosTemp.json")
