@@ -78,39 +78,141 @@ class VideoStatisticsCollector(TikTokCollector):
 
     def getMetadata(self):
         data = self.getStatistics()
-        content = self.getContent()
+        content = {"Content":self.getContent()}
         return {**data,**content}
         
     def getContent(self):
         time.sleep(2)
-        return self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[1]/div/div[1]/div/video').get_attribute("src")
-
+        src=""
+        try:
+            src= self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[1]/div/div[1]/div/video').get_attribute("src")
+        except:
+            pass
+        try:
+            src = self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[1]/div/div[1]/div/video').get_attribute("src")
+        except:
+            pass
+        try:
+            src = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[1]/div[2]/div/div/video").get_attribute("src")
+        except:
+            pass
+        return src
+        
     def __getUserId(self):
-        return self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[2]/div/a[2]/span[1]').text
+        user=""
+        try:
+            user = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[1]/div[1]/a[2]/h3").text
+        except:
+            pass
+        try:
+            user =self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[2]/div/a[2]/span[1]').text
+        except:
+            pass
+        try:
+            user = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[1]").text
+        except:
+            pass
+        return user
 
     def __getUser(self):
-        user = self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[2]/div/a[2]/span[2]').text
-        idx=user[::-1].index('·')
-        user = user[:len(user)-(idx+1)]
+        user=""
+        try:
+            user = self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[2]/div/a[2]/span[2]').text
+            idx=user[::-1].index('·')
+            user = user[:len(user)-(idx+1)]
+        except:
+            pass
+        try:
+            user = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[1]/div[1]/a[2]/h4").text
+        except:
+            pass
+        try:
+            user = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[2]").text
+            user = user.split("·")[0]
+        except:
+            pass
         return user
 
     def __getDescription(self):
-        return self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]').text
-
+        result=""
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[1]/div[2]/span").text
+        except:
+            pass
+        try:
+            result=self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[1]/div[2]').text
+        except:
+            pass
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[2]/div/span").text
+        except:
+            pass
+        return result
     def __getLikes(self):
-        return self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[1]/strong").text
-    
+        result = ""
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[1]/strong").text
+        except:
+            pass
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[2]/button[1]/strong").text
+        except:
+            pass
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[3]/button[1]/strong").text
+        except:
+            pass
+        return result
+        
     def __getCommentCount(self):
-        return self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[2]/strong").text
-
+        result = ""
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[2]/strong").text
+        except:
+            pass
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[2]/button[2]/strong").text
+        except:
+            pass
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[3]/button[2]/strong").text
+        except:
+            pass
+        return result
+        
     def __getShares(self):
-        return self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[3]/strong").text
+        result=""
+        try:
+            result=self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[2]/button[3]/strong").text
+        except:
+            pass
+        try:
+            result=self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[3]/strong").text
+        except:
+            pass
+        try:
+            result = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[3]/button[3]/strong").text
+        except:
+            pass
+        return result
 
         
     def __getPublicationDate(self):
-        date = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[2]/div/a[2]/span[2]/span[2]").text
+        date="2000-01-01"
+        try:
+            date = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[2]/div/a[2]/span[2]/span[2]").text
+        except:
+            pass
+        try:
+            date = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[1]/div[1]/a[2]").text
+            date = date.split("·")[1]
+        except:
+            pass
+        try:
+            date = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[2]/span[2]").text
+        except:
+            pass
         return formatDate(date)
-
 
     #checa se há a mensagem de video removido
     def __videoExists(self):
@@ -215,3 +317,7 @@ class CommentCollector(TikTokCollector):
             except Exception as e:
                 break
         return comments
+   
+if __name__ == "__main__":
+    driver =  webdriver.Chrome("./chromedriver.exe")
+    driver.close()
