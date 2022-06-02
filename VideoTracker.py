@@ -18,24 +18,23 @@ try:
 except:
     logs = pd.DataFrame(columns=["Url",'User',"UserId","ProfileBio","Followers","Following","LikeCount","CollectionDate","Status"])
 
-while True:
-    driver =  webdriver.Chrome("./chromedriver.exe")
-    api = TikTokCollector.VideoStatisticsCollector(driver)
-    newData=[]
-    today = datetime.now().strftime("%Y-%m-%d")
-    for url in videos['Url']:
-        checked=False
-        try:
-            checked = (logs[logs['Url']==url].iloc[-1]["CollectionDate"] == today)
-        except:
-            pass
-        if checked:
-            continue
-        data = api.getStatisticsFromUrl(url)
-        newData.append(data)
-        time.sleep(0.5)
-    driver.quit()
-    with open("/tiktok_data/Data/VideoLogging.json","a") as file:
-        for line in newData:
-            write_document_to_file(line,file)
-    time.sleep(86400)
+#may need to while true this`
+driver =  webdriver.Chrome("./chromedriver.exe")
+api = TikTokCollector.VideoStatisticsCollector(driver)
+newData=[]
+today = datetime.now().strftime("%Y-%m-%d")
+for url in videos['Url']:
+    checked=False
+    try:
+        checked = (logs[logs['Url']==url].iloc[-1]["CollectionDate"] == today)
+    except:
+        pass
+    if checked:
+        continue
+    data = api.getStatisticsFromUrl(url)
+    newData.append(data)
+    time.sleep(0.5)
+driver.quit()
+with open("/tiktok_data/Data/VideoLogging.json","a") as file:
+    for line in newData:
+        write_document_to_file(line,file)
