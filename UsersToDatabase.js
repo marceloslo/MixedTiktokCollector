@@ -128,7 +128,7 @@ async function UserToDatabase(){
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   const urls = await getData();
-  const dataframe = await readJson('Data/UserMetadata.json');
+  const dataframe = await readJson('./Data/UserMetadata.json');
   results=[];
   for(var url of urls)
   {
@@ -142,7 +142,7 @@ async function UserToDatabase(){
   for(var result of results)
   {
     var content = JSON.stringify(result);
-    fs.appendFile('Data/UserMetadata.json',content+'\n',function (err) {
+    fs.appendFile('./Data/UserMetadata.json',content+'\n',function (err) {
       if (err) throw err;
     });
   }

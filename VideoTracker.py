@@ -11,10 +11,10 @@ def write_document_to_file(document, file):
     file.write("\n")
     file.flush()
 
-videos = pd.read_json("/tiktok_data/Data/VideoMetadata.json",lines=True)
+videos = pd.read_json("./Data/VideoMetadata.json",lines=True)
 
 try:
-    logs = pd.read_json("/tiktok_data/Data/VideoLogging.json",lines=True)
+    logs = pd.read_json("./Data/VideoLogging.json",lines=True)
 except:
     logs = pd.DataFrame(columns=["Url",'User',"UserId","ProfileBio","Followers","Following","LikeCount","CollectionDate","Status"])
 
@@ -35,6 +35,6 @@ for url in videos['Url']:
     newData.append(data)
     time.sleep(0.5)
 driver.quit()
-with open("/tiktok_data/Data/VideoLogging.json","a") as file:
+with open("./Data/VideoLogging.json","a") as file:
     for line in newData:
         write_document_to_file(line,file)

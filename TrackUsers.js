@@ -82,7 +82,7 @@ async function getAndFormat(url,page){
 async function TrackUsers(){
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  const urls = await readJson('Data/UserMetadata.json');
+  const urls = await readJson('./Data/UserMetadata.json');
   results=[];
   for(var url of urls)
   {
@@ -95,7 +95,7 @@ async function TrackUsers(){
   for(var result of results)
   {
     var content = JSON.stringify(result);
-    fs.appendFile('Data/UserLogging.json',content+'\n',function (err) {
+    fs.appendFile('./Data/UserLogging.json',content+'\n',function (err) {
       if (err) throw err;
     });
   }
