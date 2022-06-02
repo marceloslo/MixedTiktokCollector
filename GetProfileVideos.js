@@ -89,7 +89,7 @@ async function readJson(file){
 }
 
 async function run(){
-	urls = await readJson('./Data/UserMetadata.json');
+	urls = await readJson('Data/UserMetadata.json');
 	for (var url of urls){
 		await getLinks(url);
 	}

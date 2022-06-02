@@ -52,7 +52,7 @@ async function readJson(file){
 
 //gets data of xp(X-Path) of a given page
 async function getMetadata(page,xp){
-  await page.waitForXPath(xp);
+  await page.waitForXPath(xp,{timeout: 1000});
   let [info] = await page.$x(xp);
   const result = await page.evaluate(name => name.innerText, info);
   return result;
@@ -102,7 +102,7 @@ async function ProfileExists(page){
 
 //gets metadata in json format
 async function getAndFormat(url,page){
-  var exists = ProfileExists(page);
+  var exists = await ProfileExists(page);
   if(exists){
     var stats = {};
     stats["Url"]=url;
@@ -128,7 +128,7 @@ async function UserToDatabase(){
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   const urls = await getData();
-  const dataframe = await readJson('./Data/UserMetadata.json');
+  const dataframe = await readJson('Data/UserMetadata.json');
   results=[];
   for(var url of urls)
   {
@@ -142,7 +142,7 @@ async function UserToDatabase(){
   for(var result of results)
   {
     var content = JSON.stringify(result);
-    fs.appendFile('./Data/UserMetadata.json',content+'\n',function (err) {
+    fs.appendFile('Data/UserMetadata.json',content+'\n',function (err) {
       if (err) throw err;
     });
   }

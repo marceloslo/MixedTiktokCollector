@@ -17,7 +17,7 @@ async function readJson(file){
   return dataframe;
 }
 async function getMetadata(page,xp){
-  await page.waitForXPath(xp);
+  await page.waitForXPath(xp,{timeout: 1000});
   let [info] = await page.$x(xp);
   const result = await page.evaluate(name => name.innerText, info);
   return result;
@@ -59,7 +59,7 @@ async function ProfileExists(page){
   }
 }
 async function getAndFormat(url,page){
-  var exists = ProfileExists(page);
+  var exists = await ProfileExists(page);
   if(exists){
     var stats = {};
     stats["Url"]=url;
@@ -82,21 +82,23 @@ async function getAndFormat(url,page){
 async function TrackUsers(){
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  const urls = await readJson('./Data/UserMetadata.json');
+  const urls = await readJson('Data/UserMetadata.json');
   results=[];
   for(var url of urls)
   {
     console.log(url);
     await page.goto(url);
     var result = await getAndFormat(url,page);
-    results.push(result);
   }
   console.log("saving new results\n");
   for(var result of results)
   {
     var content = JSON.stringify(result);
-    fs.appendFile('./Data/UserLogging.json',content+'\n',function (err) {
-      if (err) throw err;
+    fs.appendFile('Data/UserLogging.json',content+'\n',function (err) {
+      if (err) {
+	  console.log(err);
+	  throw err;
+	  }
     });
   }
   await browser.close()
