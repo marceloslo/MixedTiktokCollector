@@ -88,15 +88,17 @@ async function getCollectionDate(){
   return new Date().toISOString().replace('T', ' ').substring(0, 10);
 }
 
-//checks if profile exists(True or False)
+async function getRemovalMessage(page){
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/main/div/p[1]');
+    return res;
+}
 async function ProfileExists(page){
   try{
-    //this xpath corresponds to removed video
-    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/main/div/p[1]');
-    return 0;
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/div[1]/div/h1');
+    return 1;
   }
   catch(err){
-    return 1;
+    return 0;
   }
 }
 
@@ -119,6 +121,7 @@ async function getAndFormat(url,page){
   else{
     var stats = {"Url":url,'User':"","UserId":"","ProfileBio":"","Followers":"","Following":"","LikeCount":"","Status":0}
     stats["CollectionDate"] = await getCollectionDate();
+	stats["Description"] = await getRemovalMessage(page);
     return stats;
   }
 }

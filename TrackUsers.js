@@ -17,7 +17,7 @@ async function readJson(file){
   return dataframe;
 }
 async function getMetadata(page,xp){
-  await page.waitForXPath(xp,{timeout: 1000});
+  await page.waitForXPath(xp,{timeout: 10000});
   let [info] = await page.$x(xp);
   const result = await page.evaluate(name => name.innerText, info);
   return result;
@@ -49,13 +49,18 @@ async function getProfileId(page){
 async function getCollectionDate(){
   return new Date().toISOString().replace('T', ' ').substring(0, 10);
 }
+
+async function getRemovalMessage(page){
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/main/div/p[1]');
+    return res;
+}
 async function ProfileExists(page){
   try{
-    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/main/div/p[1]');
-    return 0;
+    const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/div[1]/div/h1');
+    return 1;
   }
   catch(err){
-    return 1;
+    return 0;
   }
 }
 async function getAndFormat(url,page){
@@ -76,6 +81,7 @@ async function getAndFormat(url,page){
   else{
     var stats = {"Url":url,'User':"","UserId":"","ProfileBio":"","Followers":"","Following":"","LikeCount":"","Status":0}
     stats["CollectionDate"] = await getCollectionDate();
+	stats["Description"] = await getRemovalMessage(page);
     return stats;
   }
 }
@@ -89,6 +95,7 @@ async function TrackUsers(){
     console.log(url);
     await page.goto(url);
     var result = await getAndFormat(url,page);
+	results.push(result);
   }
   console.log("saving new results\n");
   for(var result of results)
@@ -96,7 +103,6 @@ async function TrackUsers(){
     var content = JSON.stringify(result);
     fs.appendFile('Data/UserLogging.json',content+'\n',function (err) {
       if (err) {
-	  console.log(err);
 	  throw err;
 	  }
     });
