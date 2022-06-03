@@ -4,6 +4,14 @@
  Javascript: necessário baixar puppeteer, puppeteer-extra,puppeteer-extra-plugin-stealth, csv
  npm install ...
 
+# Scripts
+
+- TrackUsers: collects daily user statistics and saves on userlogging
+- UsersToDatabase: given manually collected videos on TikTokUsers.csv add they and their statistics to UserMetadata
+- GetProfileVideos: get videos from profiles and saves their url on VideosTemp.
+- VideoToDatabase: get videos from VideosTemp and saves their metadata on VideoMetadata
+- VideoTracker: get daily video statistics and saves them on videologging
+- CommentTracker: get all comments from videos in videometadata and saves on comments.json
 
 # TikTokCollector
 
