@@ -4,6 +4,8 @@ import TikTokCollector
 import json
 import time
 from datetime import datetime
+from selenium.webdriver.chrome.options import Options
+ 
 
 
 def write_document_to_file(document, file):
