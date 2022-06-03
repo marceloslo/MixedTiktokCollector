@@ -1,6 +1,10 @@
 var fs = require('fs'); 
 const readline = require('readline');
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+
+puppeteer.use(StealthPlugin());
+
 async function readJson(file){
   const fileStream = fs.createReadStream(file);
   const rl = readline.createInterface({
@@ -86,7 +90,7 @@ async function getAndFormat(url,page){
   }
 }
 async function TrackUsers(){
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({headless:true});
   const page = await browser.newPage();
   const urls = await readJson('Data/UserMetadata.json');
   results=[];
