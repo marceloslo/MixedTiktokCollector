@@ -1,3 +1,3 @@
 cd ../
 
-python3 CommentTracker.py >> "./CommentTrackerLog.out"
+python3 CommentTracker.py >> "Logs/CommentTrackerLog.out"
