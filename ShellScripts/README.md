@@ -1,4 +1,9 @@
-# TiktokJs
- TikTok scrapper with javascript
- necessário baixar puppeteer, puppeteer-extra,puppeteer-extra-plugin-stealth,csv
- npm install ...
+# Scripts
+
+## MakeLogs.sh
+
+Runs VideoTracker and UserTracker daily on background.
+
+## UpdateDatabase.sh
+
+Runs GetProfileVideos weekly and then runs VideoToDatabase.
