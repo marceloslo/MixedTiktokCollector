@@ -18,8 +18,9 @@ try:
 except:
     logs = pd.DataFrame(columns=["Url",'User',"UserId","ProfileBio","Followers","Following","LikeCount","CollectionDate","Status"])
 
-#may need to while true this`
-driver =  webdriver.Chrome("./chromedriver")
+options = Options()
+options.headless = True
+driver =  webdriver.Chrome("./chromedriver",options=options)
 api = TikTokCollector.VideoStatisticsCollector(driver)
 newData=[]
 today = datetime.now().strftime("%Y-%m-%d")
