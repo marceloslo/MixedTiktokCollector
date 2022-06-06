@@ -319,5 +319,10 @@ class CommentCollector(TikTokCollector):
         return comments
    
 if __name__ == "__main__":
-    driver =  webdriver.Chrome("./chromedriver.exe")
+    opts = webdriver.ChromeOptions()
+    opts.add_argument("--window-size=1024,768")
+    driver =  webdriver.Chrome("./chromedriver.exe",options=opts)
+    api = VideoStatisticsCollector(driver)
+    api.setUrl("https://www.tiktok.com/@anitta/video/7105854981626006789")
+    print(api.getStatistics())
     driver.close()

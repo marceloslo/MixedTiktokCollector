@@ -22,6 +22,7 @@ except:
 
 options = Options()
 options.headless = True
+options.add_argument("--window-size=1024,768")
 driver =  webdriver.Chrome("./chromedriver",options=options)
 api = TikTokCollector.VideoStatisticsCollector(driver)
 newData=[]

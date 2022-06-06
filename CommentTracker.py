@@ -13,7 +13,10 @@ def write_document_to_file(document, file):
 
 videos = pd.read_json("Data/VideoMetadata.json",lines=True)
 
-driver =  webdriver.Chrome("./chromedriver.exe")
+opts = webdriver.ChromeOptions()
+opts.add_argument("--window-size=1024,768")
+driver =  webdriver.Chrome("./chromedriver.exe",options=opts)
+
 api = TikTokCollector.CommentCollector(driver)
 for url in videos['Url']:
     data = api.getStatisticsFromUrl(url)

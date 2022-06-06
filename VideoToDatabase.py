@@ -18,7 +18,9 @@ try:
 except:
     videos = pd.DataFrame(columns=["Url",'User',"UserId","ProfileBio","Followers","Following","LikeCount","CollectionDate","Status"])
 
-driver =  webdriver.Chrome("./chromedriver.exe")
+opts = webdriver.ChromeOptions()
+opts.add_argument("--window-size=1024,768")
+driver =  webdriver.Chrome("./chromedriver.exe",options=opts)
 api = TikTokCollector.VideoStatisticsCollector(driver)
 newData=[]
 today = datetime.now().strftime("%Y-%m-%d")
