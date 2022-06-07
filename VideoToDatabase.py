@@ -35,4 +35,4 @@ with open("Data/VideoMetadata.json","a") as file:
     for line in newData:
         write_document_to_file(line,file)
 
-#os.remove("Data/VideosTemp.json")
+os.remove("Data/VideosTemp.json")
