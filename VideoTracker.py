@@ -30,6 +30,7 @@ api = TikTokCollector.VideoStatisticsCollector(driver)
 newData=[]
 today = datetime.now().strftime("%Y-%m-%d")
 for url in videos['Url']:
+    print(url)
     checked=False
     try:
         checked = (logs[logs['Url']==url].iloc[-1]["CollectionDate"] == today)
@@ -41,6 +42,7 @@ for url in videos['Url']:
     newData.append(data)
     time.sleep(0.5)
 driver.quit()
+print("Saving videos")
 with open("Data/VideoLogging.json","a") as file:
     for line in newData:
         write_document_to_file(line,file)
