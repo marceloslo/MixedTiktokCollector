@@ -24,7 +24,7 @@ options = Options()
 options.headless = True
 options.add_argument("--window-size=1024,768")
 options.add_argument("--disable-dev-shm-usage")
-driver =  webdriver.Chrome("./chromedriver",options=options)
+driver =  webdriver.Chrome("/tiktok_data/MixedTiktokCollector/chromedriver",options=options)
 api = TikTokCollector.VideoStatisticsCollector(driver)
 newData=[]
 today = datetime.now().strftime("%Y-%m-%d")
