@@ -24,6 +24,7 @@ options = Options()
 options.headless = True
 options.add_argument("--window-size=1024,768")
 options.add_argument("--disable-dev-shm-usage")
+options.addArguments("--no-sandbox")
 driver =  webdriver.Chrome("./chromedriver",options=options)
 api = TikTokCollector.VideoStatisticsCollector(driver)
 newData=[]
