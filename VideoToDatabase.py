@@ -20,6 +20,7 @@ except:
 
 opts = webdriver.ChromeOptions()
 opts.add_argument("--window-size=1024,768")
+opts.add_argument("--disable-dev-shm-usage")
 driver =  webdriver.Chrome("./chromedriver.exe",options=opts)
 api = TikTokCollector.VideoStatisticsCollector(driver)
 newData=[]
