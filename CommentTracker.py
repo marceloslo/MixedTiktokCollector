@@ -16,7 +16,7 @@ videos = pd.read_json("Data/VideoMetadata.json",lines=True)
 opts = webdriver.ChromeOptions()
 opts.add_argument("--window-size=1024,768")
 opts.add_argument("--disable-dev-shm-usage")
-opts.addArguments("--no-sandbox")
+opts.add_argument("--no-sandbox")
 driver =  webdriver.Chrome("./chromedriver.exe",options=opts)
 
 api = TikTokCollector.CommentCollector(driver)
