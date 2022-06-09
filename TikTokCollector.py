@@ -8,6 +8,7 @@ from selenium_stealth import stealth
 
 def formatDate(date):
     publication_date = date
+    print(datetime.strptime(publication_date,"%Y-%m-%d"))
     if 'd' in date:
         value = int(re.search(r'\d+', publication_date).group())
         date_ago = (datetime.now() - timedelta(days=value)).date() 
@@ -212,6 +213,7 @@ class VideoStatisticsCollector(TikTokCollector):
             date = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[2]/div/a[2]/span[2]/span[2]").text
         except:
             pass
+        date=date.replace(' ','')
         return formatDate(date)
 
     #checa se há a mensagem de video removido
@@ -323,6 +325,6 @@ if __name__ == "__main__":
     opts.add_argument("--window-size=1024,768")
     driver =  webdriver.Chrome("./chromedriver.exe",options=opts)
     api = VideoStatisticsCollector(driver)
-    api.setUrl("https://www.tiktok.com/@anitta/video/7105854981626006789")
+    api.setUrl("https://www.tiktok.com/@ptbrasil/video/6938414498097220869")
     print(api.getStatistics())
     driver.close()

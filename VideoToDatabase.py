@@ -1,6 +1,7 @@
 import pandas as pd
 from selenium import webdriver
 import TikTokCollector
+import time
 import json
 import os
 from datetime import datetime
@@ -27,10 +28,11 @@ api = TikTokCollector.VideoStatisticsCollector(driver)
 newData=[]
 today = datetime.now().strftime("%Y-%m-%d")
 for url in newVideos['Url']:
-    print('Collecting '+url)
-    api.setUrl(url)
-    data=api.getMetadata()
-    newData.append(data)
+    if url not in videos['Url'].to_list():
+        print('Collecting '+url)
+        api.setUrl(url)
+        data=api.getMetadata()
+        newData.append(data)
 driver.quit()
 print("Saving")
 with open("Data/VideoMetadata.json","a") as file:
