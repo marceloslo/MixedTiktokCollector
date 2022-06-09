@@ -4,3 +4,4 @@ package-lock.json
 __pycache__/TikTokCollector.cpython-39.pyc
 *.bat
 __pycache__/
+Notebooks/
