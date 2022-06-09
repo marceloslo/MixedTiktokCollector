@@ -1,5 +1,6 @@
 import selenium
 import re
+import pickle
 from datetime import datetime, timedelta
 import time
 import random
@@ -273,6 +274,7 @@ class ProfileStatisticsCollector(TikTokCollector):
 class CommentCollector(TikTokCollector):
     def __init__(self,driver):
         super().__init__(driver)
+        self.login()
         
     def __scroll(self):
         SCROLL_PAUSE_TIME = 0.5
@@ -282,17 +284,71 @@ class CommentCollector(TikTokCollector):
             time.sleep(SCROLL_PAUSE_TIME)
             new_height = self.driver.execute_script("return document.body.scrollHeight")
             if new_height == last_height:
+                return last_height != 881
                 break
             last_height = new_height
+    
+    def __commentScroll(self):
+        #click comment button
+        self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[2]/button[2]").click()
+        #get container of comments
+        comment_container = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[3]")
+        current_height = 200
+        flag = False
+        while True:
+            self.driver.execute_script("arguments[0].scrollTop = arguments[1]", comment_container, current_height)
+            current_scroll_top = self.driver.execute_script("return arguments[0].scrollTop", comment_container)
+            if current_height != current_scroll_top:
+                if flag:
+                    break
+                else:
+                    time.sleep(2)
+                    flag = True
+            if flag and current_height == current_scroll_top:
+                flag = False
+            current_height += 200
+            time.sleep(0.5)
+
+
+    def __addLogin(self):
+        self.setUrl("https://www.tiktok.com/login/phone-or-email/email")
+        time.sleep(60.0)
+        with open("cookies.pkl","wb") as f:
+            pickle.dump(self.driver.get_cookies(), f)
+        
+    def __getLogin(self):
+        self.setUrl("https://www.tiktok.com/login/phone-or-email/email")
+        with open("cookies.pkl", "rb") as f:
+            cookies = pickle.load(f)
+            for cookie in cookies:
+                self.driver.add_cookie(cookie)
+                
+    def login(self):
+        try:
+            with open("cookies.pkl", "rb"):
+                pass
+            self.__getLogin()
+        except:
+            self.__addLogin()        
+
+
     def getStatistics(self):
-        self.__scroll()
-        i = 1
+        debug = []
+    
         comments = []
+        altComments = False
+        if not self.__scroll():
+            self.__commentScroll()
+            altComments = True
+        i = 1
         while True:
             try:
                 element = []
                 try:
-                    element = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[3]/div[2]/div[" + str(i) + "]")
+                    if altComments: 
+                        element = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[3]/div[" + str(i) + "]") 
+                    else:
+                        element = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div[1]/div[3]/div[2]/div[" + str(i) + "]")
                 except:
                     pass
                 comment_element = element.find_element_by_xpath('div[1]')
@@ -302,12 +358,13 @@ class CommentCollector(TikTokCollector):
                     reply_element = None
                 comment_element_text = comment_element.text
                 aux = comment_element_text.split("\n")
-                limit = 5
+                limit = 4 if altComments else 5
                 while len(aux) > limit:
                     aux[1] += " \n " + aux.pop(2)
+                debug = aux
                 username = aux[0]
                 comment = aux[1]
-                when = aux[2]
+                when = aux[2].rstrip("Reply")
                 date = formatDate(when)
                 likes = int(aux[3])
                 replies = 0
