@@ -19,6 +19,8 @@ def formatDate(date):
         publication_date = date_ago.strftime("%Y-%m-%d")
     elif 'ago' in date:
         publication_date = datetime.now().strftime("%Y-%m-%d")
+    elif not publication_date:
+        publication_date="2000-01-01"
     else:
         try:
             publication_date = datetime.strptime(publication_date,"%Y-%m-%d")
@@ -381,6 +383,6 @@ if __name__ == "__main__":
     opts.add_argument("--window-size=1024,768")
     driver =  webdriver.Chrome("./chromedriver.exe",options=opts)
     api = VideoStatisticsCollector(driver)
-    api.setUrl("https://www.tiktok.com/@ptbrasil/video/6938414498097220869")
+    api.setUrl("https://www.tiktok.com/@ptbrasil/video/6938889295319026949")
     print(api.getStatistics())
-    driver.close()
+    #driver.close()
