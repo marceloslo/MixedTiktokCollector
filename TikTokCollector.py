@@ -9,7 +9,6 @@ from selenium_stealth import stealth
 
 def formatDate(date):
     publication_date = date
-    print(datetime.strptime(publication_date,"%Y-%m-%d"))
     if 'd' in date:
         value = int(re.search(r'\d+', publication_date).group())
         date_ago = (datetime.now() - timedelta(days=value)).date() 
