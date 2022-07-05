@@ -5,3 +5,5 @@ __pycache__/TikTokCollector.cpython-39.pyc
 *.bat
 __pycache__/
 Notebooks/
+chromedriver.exe
+chromedriver.exe
