@@ -1,41 +1,12 @@
 var fs = require('fs'); 
-var { parse } = require("csv-parse");
 const readline = require('readline');
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer-extra');
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
-//reads csv file and returns its users
-function readData(file)
-{
-  let urls=[]
-  return new Promise((resolve,reject) =>{
-    fs.createReadStream(file)
-      .on('error',error => {
-        reject(error);
-      })
-      .pipe(parse({delimiter: ',',from_line: 2}))
-      .on('data', (row) => {
-        urls.push(row[0]);
-      })
-      .on('end', () => {
-        resolve(urls);
-      });
-  });
-}
+puppeteer.use(StealthPlugin());
 
-//gets csv data from TikTokUsers.csv
-async function getData(){
-  try { 
-    const data = await readData('Data/TikTokUsers.csv');
-    return data;
-  } catch (error) {
-      console.error("testGetData: An error occurred: ", error.message);
-  }
-}
-
-//reads the usermetadata json and stores its urls
 async function readJson(file){
   const fileStream = fs.createReadStream(file);
-
   const rl = readline.createInterface({
     input: fileStream,
     crlfDelay: Infinity
@@ -49,15 +20,12 @@ async function readJson(file){
   }
   return dataframe;
 }
-
-//gets data of xp(X-Path) of a given page
 async function getMetadata(page,xp){
-  await page.waitForXPath(xp,{timeout: 1000});
+  await page.waitForXPath(xp,{timeout: 10000});
   let [info] = await page.$x(xp);
   const result = await page.evaluate(name => name.innerText, info);
   return result;
 }
-
 async function getProfileName(page){
   const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/div[1]/div/h1');
   return res;
@@ -74,7 +42,6 @@ async function getProfileLikeCount(page){
   const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/h2[1]/div[3]/strong');
   return res;
 }
-
 async function getProfileFollowing(page){
   const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/h2[1]/div[1]/strong');
   return res;
@@ -83,7 +50,6 @@ async function getProfileId(page){
   const res = await getMetadata(page,'/html/body/div[2]/div[2]/div[2]/div/div[1]/div[1]/div/h2');
   return res;
 }
-//gets date in format YYYY-MM-DD
 async function getCollectionDate(){
   return new Date().toISOString().replace('T', ' ').substring(0, 10);
 }
@@ -101,8 +67,6 @@ async function ProfileExists(page){
     return 0;
   }
 }
-
-//gets metadata in json format
 async function getAndFormat(url,page){
   var exists = await ProfileExists(page);
   if(exists){
@@ -125,34 +89,31 @@ async function getAndFormat(url,page){
     return stats;
   }
 }
-
-//Add all profiles' metadata in the csv file to the json file
-async function UserToDatabase(){
+async function TrackUsers(){
   const browser = await puppeteer.launch({headless:true,defaultViewport:{
         width:1024,
         height:768
       }});
   const page = await browser.newPage();
-  const urls = await getData();
-  const dataframe = await readJson('Data/UserMetadata.json');
+  const urls = await readJson('../Data/UserMetadata.json');
   results=[];
   for(var url of urls)
   {
-    if(!dataframe.includes(url)){
-      console.log(url);
-      await page.goto(url);
-      var result = await getAndFormat(url,page);
-      results.push(result);
-    }
+    console.log(url);
+    await page.goto(url);
+    var result = await getAndFormat(url,page);
+	results.push(result);
   }
+  console.log("saving new results\n");
   for(var result of results)
   {
     var content = JSON.stringify(result);
-    fs.appendFile('Data/UserMetadata.json',content+'\n',function (err) {
-      if (err) throw err;
+    fs.appendFile('../Data/UserLogging.json',content+'\n',function (err) {
+      if (err) {
+	  throw err;
+	  }
     });
   }
   await browser.close()
 }
-
-UserToDatabase() 
+TrackUsers(); 

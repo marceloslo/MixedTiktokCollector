@@ -44,7 +44,7 @@ async function getLinks(url){
 		var dict = {};
 		dict['Url'] = result;
 		var content = JSON.stringify(dict);
-		fs.appendFile('Data/VideosTemp.json',content+'\n',function (err) {
+		fs.appendFile('../Data/VideosTemp.json',content+'\n',function (err) {
 			if (err) throw err;
 		});
 	}
@@ -89,7 +89,7 @@ async function readJson(file){
 }
 
 async function run(){
-	urls = await readJson('Data/UserMetadata.json');
+	urls = await readJson('../Data/UserMetadata.json');
 	for (var url of urls){
 		await getLinks(url);
 	}
