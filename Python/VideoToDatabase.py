@@ -12,10 +12,10 @@ def write_document_to_file(document, file):
     file.write("\n")
     file.flush()
 
-newVideos = pd.read_json("Data/VideosTemp.json",lines=True)
+newVideos = pd.read_json("../Data/VideosTemp.json",lines=True)
 
 try:
-    videos = pd.read_json("Data/VideoMetadata.json",lines=True)
+    videos = pd.read_json("../Data/VideoMetadata.json",lines=True)
 except:
     videos = pd.DataFrame(columns=["Url",'User',"UserId","ProfileBio","Followers","Following","LikeCount","CollectionDate","Status"])
 
@@ -35,8 +35,8 @@ for url in newVideos['Url']:
         newData.append(data)
 driver.quit()
 print("Saving")
-with open("Data/VideoMetadata.json","a") as file:
+with open("../Data/VideoMetadata.json","a") as file:
     for line in newData:
         write_document_to_file(line,file)
 
-os.remove("Data/VideosTemp.json")
+os.remove("../Data/VideosTemp.json")

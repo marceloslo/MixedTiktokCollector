@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import time
 import random
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium_stealth import stealth
 
 def formatDate(date):
@@ -88,17 +89,9 @@ class VideoStatisticsCollector(TikTokCollector):
         time.sleep(2)
         src=""
         try:
-            src= self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[1]/div/div[1]/div/video').get_attribute("src")
+            src= self.driver.find_element(By.TAG_NAME, 'video').get_attribute("src")
         except:
-            pass
-        try:
-            src = self.driver.find_element_by_xpath('/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[1]/div/div[1]/div/video').get_attribute("src")
-        except:
-            pass
-        try:
-            src = self.driver.find_element_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[2]/div/div[1]/div[1]/div[2]/div/div/video").get_attribute("src")
-        except:
-            pass
+            print("Failed to collect src from ",self.url)
         return src
         
     def __getUserId(self):
@@ -384,5 +377,5 @@ if __name__ == "__main__":
     driver =  webdriver.Chrome("./chromedriver.exe",options=opts)
     api = VideoStatisticsCollector(driver)
     api.setUrl("https://www.tiktok.com/@ptbrasil/video/6938889295319026949")
-    print(api.getStatistics())
+    print(api.getMetadata())
     #driver.close()
