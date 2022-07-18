@@ -29,7 +29,7 @@ def transcribe(videoname):
     print(final)
 
     # exporting the result 
-    with open('../../Data/Mp4/transcripts.json','a',encoding='utf-8') as file: 
+    with open('../../Data/transcripts.json','a',encoding='utf-8') as file: 
         write_document_to_file(final,file)
     
     os.remove("temp.wav")
