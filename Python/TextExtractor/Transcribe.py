@@ -8,10 +8,8 @@ def write_document_to_file(document, file):
     file.write("\n")
     file.flush()
 
-videoname = "httpswww.tiktok.com@bolsonaromessiasjairvideo7063796844056349958.mp4"
-
-def transcribe(videoname):
-    clip = mp.VideoFileClip("D:/TikTokMp4/"+videoname) 
+def Transcribe(path,videoname):
+    clip = mp.VideoFileClip(path) 
     
     clip.audio.write_audiofile("temp.wav")
 
@@ -24,9 +22,7 @@ def transcribe(videoname):
         audio_file = r.record(source)
         result = r.recognize_google(audio_file,language = 'pt-PT',show_all=True)
 
-    final = {'Source':videoname.replace('.mp4',''),'Transcript':result['alternative'][0]['transcript']}
-
-    print(final)
+    final = {'Url':videoname,'Transcript':result['alternative'][0]['transcript']}
 
     # exporting the result 
     with open('../../Data/transcripts.json','a',encoding='utf-8') as file: 
@@ -34,4 +30,8 @@ def transcribe(videoname):
     
     os.remove("temp.wav")
 
-transcribe(videoname)
+    return final
+
+if __name__ == '__main__':
+    videoname = "httpswww.tiktok.com@bolsonaromessiasjairvideo7063796844056349958.mp4"
+    print(Transcribe(videoname,'boloro'))
